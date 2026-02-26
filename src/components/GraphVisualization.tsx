@@ -242,6 +242,8 @@ export function GraphVisualization({
         onEdgesChange={onEdgesChange}
         fitView
         fitViewOptions={{ padding: 0.2 }}
+        minZoom={0.01}
+        maxZoom={100}
       >
         <Background />
         <Controls />
