@@ -1,17 +1,23 @@
 import type {
   OptimizeSmallWorldRequest,
   OptimizeSmallWorldResponse,
+  ApiTarget,
 } from "./types.ts";
 
 // 개발/프로덕션 모두 프록시 경로 사용 (CORS 우회)
 // - 개발: Vite proxy (vite.config.ts)
 // - 프로덕션: Vercel rewrites (vercel.json)
-const API_URL = "/api/optimize/small-world";
+export const SMALL_WORLD_API_URL = "/api/optimize/small-world";
+export const NAOTO_API_URL = "/api/optimize/naoto";
 
 export async function optimizeSmallWorld(
-  request: OptimizeSmallWorldRequest
+  request: OptimizeSmallWorldRequest,
+  apiTarget: ApiTarget
 ): Promise<OptimizeSmallWorldResponse> {
-  const response = await fetch(API_URL, {
+  const url =
+    apiTarget === "naoto" ? NAOTO_API_URL : SMALL_WORLD_API_URL;
+
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

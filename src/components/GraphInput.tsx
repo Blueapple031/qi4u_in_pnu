@@ -1,4 +1,5 @@
 import type { ChangeEvent } from "react";
+import type { ApiTarget } from "../types.ts";
 
 type GraphInputProps = {
   verticesRaw: string;
@@ -11,6 +12,8 @@ type GraphInputProps = {
   canDraw: boolean;
   canOptimize: boolean;
   error: string | null;
+  apiTarget: ApiTarget;
+  onApiTargetChange: (target: ApiTarget) => void;
 };
 
 export function GraphInput({
@@ -24,10 +27,38 @@ export function GraphInput({
   canDraw,
   canOptimize,
   error,
+  apiTarget,
+  onApiTargetChange,
 }: GraphInputProps) {
   return (
     <div className="graph-input">
       <h3>그래프 입력</h3>
+
+      <div className="field">
+        <label>API 선택</label>
+        <div className="api-toggle">
+          <label>
+            <input
+              type="radio"
+              name="api-target"
+              value="small-world"
+              checked={apiTarget === "small-world"}
+              onChange={(e) => onApiTargetChange(e.target.value as ApiTarget)}
+            />
+            Small World
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="api-target"
+              value="naoto"
+              checked={apiTarget === "naoto"}
+              onChange={(e) => onApiTargetChange(e.target.value as ApiTarget)}
+            />
+            Naoto
+          </label>
+        </div>
+      </div>
 
       <div className="field">
         <label htmlFor="vertices">정점 (쉼표로 구분)</label>
@@ -58,10 +89,18 @@ export function GraphInput({
       {error && <div className="error">{error}</div>}
 
       <div className="buttons">
-        <button className="btn-primary" onClick={onDrawGraph} disabled={!canDraw}>
+        <button
+          className="btn-primary"
+          onClick={onDrawGraph}
+          disabled={!canDraw}
+        >
           그래프 그리기
         </button>
-        <button className="btn-primary" onClick={onOptimize} disabled={!canOptimize}>
+        <button
+          className="btn-primary"
+          onClick={onOptimize}
+          disabled={!canOptimize}
+        >
           경로 탐색
         </button>
         <button className="btn-secondary" onClick={onReset} type="button">

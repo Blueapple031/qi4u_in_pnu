@@ -21,3 +21,5 @@ export type ParsedGraph = {
   vertices: number[];
   edges: [number, number][];
 };
+
+export type ApiTarget = "small-world" | "naoto";

@@ -91,6 +91,27 @@ header p {
   color: var(--text-muted-2);
 }
 
+.api-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--bg-tertiary);
+  padding: 0.5rem;
+  border-radius: 6px;
+}
+
+.api-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.api-toggle input {
+  margin: 0;
+  width: auto;
+}
+
 .graph-input input,
 .graph-input textarea {
   width: 100%;
