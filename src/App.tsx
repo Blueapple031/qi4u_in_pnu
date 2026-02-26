@@ -5,7 +5,11 @@ import { ResultPanel } from "./components/ResultPanel.tsx";
 import { DebugPanel } from "./components/DebugPanel.tsx";
 import { validateAndParse } from "./utils/validation.ts";
 import { optimizeSmallWorld } from "./api.ts";
-import type { ParsedGraph, OptimizeSmallWorldResponse } from "./types.ts";
+import type {
+  ParsedGraph,
+  OptimizeSmallWorldResponse,
+  ApiTarget,
+} from "./types.ts";
 import "./App.css";
 
 export default function App() {
@@ -17,6 +21,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasDrawn, setHasDrawn] = useState(false);
+  const [apiTarget, setApiTarget] = useState<ApiTarget>("small-world");
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window !== "undefined") {
       const attr = document.documentElement.getAttribute("data-theme");
@@ -56,10 +61,13 @@ export default function App() {
     setError(null);
     setLoading(true);
     try {
-      const res = await optimizeSmallWorld({
-        vertices: parsedGraph.vertices,
-        edges: parsedGraph.edges,
-      });
+      const res = await optimizeSmallWorld(
+        {
+          vertices: parsedGraph.vertices,
+          edges: parsedGraph.edges,
+        },
+        apiTarget
+      );
       setOptimizationResult(res);
     } catch (err) {
       const msg =
@@ -82,7 +90,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [parsedGraph, verticesRaw, edgesRaw]);
+  }, [parsedGraph, verticesRaw, edgesRaw, apiTarget]);
 
   const handleVerticesChange = useCallback((v: string) => {
     setVerticesRaw(v);
@@ -91,6 +99,11 @@ export default function App() {
 
   const handleEdgesChange = useCallback((e: string) => {
     setEdgesRaw(e);
+    setError(null);
+  }, []);
+
+  const handleApiTargetChange = useCallback((target: ApiTarget) => {
+    setApiTarget(target);
     setError(null);
   }, []);
 
@@ -146,6 +159,8 @@ export default function App() {
             canDraw={canDraw}
             canOptimize={canOptimize}
             error={error}
+            apiTarget={apiTarget}
+            onApiTargetChange={handleApiTargetChange}
           />
           {loading && (
             <div className="loading">최적화 중...</div>
