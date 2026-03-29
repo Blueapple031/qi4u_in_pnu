@@ -31,6 +31,7 @@ export function BenchmarkPanel({ result, loading }: BenchmarkPanelProps) {
                 <th>{t("benchmarkPanel.max")}</th>
                 <th>{t("benchmarkPanel.min")}</th>
                 <th>{t("benchmarkPanel.average")}</th>
+                <th>{t("benchmarkPanel.averageTime")}</th>
                 <th>{t("benchmarkPanel.failures")}</th>
               </tr>
             </thead>
@@ -48,6 +49,7 @@ export function BenchmarkPanel({ result, loading }: BenchmarkPanelProps) {
                           ? "N/A"
                           : stats.average.toFixed(2)}
                       </td>
+                      <td>{stats.averageTimeMs.toFixed(2)} ms</td>
                       <td>{stats.failureCount}</td>
                     </tr>
                   );

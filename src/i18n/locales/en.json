@@ -56,6 +56,7 @@
     "max": "Max Score",
     "min": "Min Score",
     "average": "Average Score",
+    "averageTime": "Average Time (ms)",
     "failures": "Failures"
   }
 }

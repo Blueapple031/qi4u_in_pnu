@@ -56,6 +56,7 @@
     "max": "最大スコア",
     "min": "最小スコア",
     "average": "平均スコア",
+    "averageTime": "平均所要時間 (ms)",
     "failures": "失敗回数"
   }
 }

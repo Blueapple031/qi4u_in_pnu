@@ -56,9 +56,11 @@ export async function runBenchmark(): Promise<BenchmarkResult> {
 
   for (const target of API_TARGETS) {
     const scores: number[] = [];
+    const durations: number[] = [];
     let failureCount = 0;
 
     for (let i = 0; i < BENCHMARK_ITERATIONS; i++) {
+      const start = performance.now();
       try {
         const res = await optimizeSmallWorld(BENCHMARK_GRAPH, target);
         if (res.optimized_graph_score === UNREACHABLE_SCORE) {
@@ -68,6 +70,8 @@ export async function runBenchmark(): Promise<BenchmarkResult> {
         }
       } catch {
         failureCount++;
+      } finally {
+        durations.push(performance.now() - start);
       }
     }
 
@@ -78,6 +82,10 @@ export async function runBenchmark(): Promise<BenchmarkResult> {
         scores.length > 0
           ? scores.reduce((a, b) => a + b, 0) / scores.length
           : UNREACHABLE_SCORE,
+      averageTimeMs:
+        durations.length > 0
+          ? durations.reduce((a, b) => a + b, 0) / durations.length
+          : 0,
       failureCount,
     };
   }

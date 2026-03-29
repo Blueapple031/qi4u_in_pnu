@@ -31,6 +31,7 @@ export type BenchmarkStats = {
   max: number;
   min: number;
   average: number;
+  averageTimeMs: number;
   failureCount: number;
 };
 
