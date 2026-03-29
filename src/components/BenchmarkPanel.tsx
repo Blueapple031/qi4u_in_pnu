@@ -49,7 +49,7 @@ export function BenchmarkPanel({ result, loading }: BenchmarkPanelProps) {
                           ? "N/A"
                           : stats.average.toFixed(2)}
                       </td>
-                      <td>{stats.averageTimeMs.toFixed(2)} ms</td>
+                      <td>{stats.averageTimeMs.toFixed(2)}</td>
                       <td>{stats.failureCount}</td>
                     </tr>
                   );
