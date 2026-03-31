@@ -6,6 +6,7 @@ import { ResultPanel } from "./components/ResultPanel.tsx";
 import { DebugPanel } from "./components/DebugPanel.tsx";
 import { BenchmarkPanel } from "./components/BenchmarkPanel.tsx";
 import { validateAndParse } from "./utils/validation.ts";
+import { buildRandomMockResponse } from "./utils/devMockOptimization.ts";
 import { optimizeSmallWorld, runBenchmark, toApiRequest } from "./api.ts";
 import type {
   ParsedGraph,
@@ -133,6 +134,18 @@ export default function App() {
     setError(null);
   }, []);
 
+  const handleDevMock = useCallback(() => {
+    const result = validateAndParse(verticesRaw, edgesRaw, defaultWeight);
+    if (!result.valid) {
+      setError(t(result.error.key, result.error));
+      return;
+    }
+    setError(null);
+    setParsedGraph(result.graph);
+    setHasDrawn(true);
+    setOptimizationResult(buildRandomMockResponse(result.graph));
+  }, [verticesRaw, edgesRaw, defaultWeight, t]);
+
   const handleReset = useCallback(() => {
     setVerticesRaw("1,2,3,4,5");
     setEdgesRaw("1 2\n2 3\n3 4\n4 5\n5 1");
@@ -209,6 +222,9 @@ export default function App() {
             error={error}
             apiTarget={apiTarget}
             onApiTargetChange={handleApiTargetChange}
+            onDevMock={
+              import.meta.env.DEV ? handleDevMock : undefined
+            }
           />
           {loading && <div className="loading">{t("loading")}</div>}
           <ResultPanel result={optimizationResult} />

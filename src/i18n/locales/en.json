@@ -18,7 +18,9 @@
     "drawGraph": "Draw Graph",
     "pathSearch": "Path Search",
     "reset": "Reset",
-    "runBenchmark": "Run Benchmark"
+    "runBenchmark": "Run Benchmark",
+    "devMock": "Dev: random paths",
+    "devMockTitle": "Randomize edge directions without the server to test visualization and animations."
   },
   "resultPanel": {
     "title": "Optimization Result",

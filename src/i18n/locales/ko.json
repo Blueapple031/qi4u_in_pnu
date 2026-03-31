@@ -18,7 +18,9 @@
     "drawGraph": "그래프 그리기",
     "pathSearch": "경로 탐색",
     "reset": "초기화",
-    "runBenchmark": "벤치마크 실행"
+    "runBenchmark": "벤치마크 실행",
+    "devMock": "Dev: 랜덤 경로",
+    "devMockTitle": "서버 없이 각 간선의 방향을 무작위로 정해 시각화·애니메이션을 테스트합니다."
   },
   "resultPanel": {
     "title": "최적화 결과",

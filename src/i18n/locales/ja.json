@@ -18,7 +18,9 @@
     "drawGraph": "グラフを描画",
     "pathSearch": "パス探索",
     "reset": "リセット",
-    "runBenchmark": "ベンチマーク実行"
+    "runBenchmark": "ベンチマーク実行",
+    "devMock": "Dev: ランダム経路",
+    "devMockTitle": "サーバーなしで各辺の向きをランダムにし、可視化・アニメーションをテストします。"
   },
   "resultPanel": {
     "title": "最適化結果",

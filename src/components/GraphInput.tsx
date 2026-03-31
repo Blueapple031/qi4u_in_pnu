@@ -19,6 +19,8 @@ type GraphInputProps = {
   error: string | null;
   apiTarget: ApiTarget;
   onApiTargetChange: (target: ApiTarget) => void;
+  /** 개발 모드에서만 전달 — 랜덤 방향 간선 mock */
+  onDevMock?: () => void;
 };
 
 export function GraphInput({
@@ -38,6 +40,7 @@ export function GraphInput({
   error,
   apiTarget,
   onApiTargetChange,
+  onDevMock,
 }: GraphInputProps) {
   const { t } = useTranslation();
   return (
@@ -138,6 +141,17 @@ export function GraphInput({
         >
           {t("graphInput.runBenchmark")}
         </button>
+        {onDevMock && (
+          <button
+            className="btn-dev"
+            onClick={onDevMock}
+            disabled={!canDraw}
+            type="button"
+            title={t("graphInput.devMockTitle")}
+          >
+            {t("graphInput.devMock")}
+          </button>
+        )}
       </div>
     </div>
   );
