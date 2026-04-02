@@ -1,7 +1,11 @@
-// Request DTO
+// Request DTO (v1)
+export type EdgeWithWeight = {
+  vertices: [number, number];
+  weight: number;
+};
+
 export type OptimizeSmallWorldRequest = {
-  vertices: number[];
-  edges: [number, number][];
+  edges: EdgeWithWeight[];
 };
 
 // Response DTO - "_from" 필드명 그대로 유지
@@ -16,10 +20,26 @@ export type OptimizeSmallWorldResponse = {
   bidirectional_graph_score: number;
 };
 
-// 파싱된 그래프
+// 파싱된 그래프 — weights[i]는 간선 edges[i]의 가중치, 정수 1~10
 export type ParsedGraph = {
   vertices: number[];
   edges: [number, number][];
+  weights: number[];
 };
 
 export type ApiTarget = "small-world" | "naoto";
+
+/** Sentinel value returned by the API when a node is unreachable. */
+export const UNREACHABLE_SCORE = -1;
+
+export type BenchmarkStats = {
+  max: number;
+  min: number;
+  average: number;
+  averageTimeMs: number;
+  failureCount: number;
+};
+
+export type BenchmarkResult = {
+  [key in ApiTarget]: BenchmarkStats;
+};

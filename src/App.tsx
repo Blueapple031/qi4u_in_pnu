@@ -1,18 +1,26 @@
 import { useState, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { GraphInput } from "./components/GraphInput.tsx";
 import { GraphVisualization } from "./components/GraphVisualization.tsx";
 import { ResultPanel } from "./components/ResultPanel.tsx";
 import { DebugPanel } from "./components/DebugPanel.tsx";
+import { BenchmarkPanel } from "./components/BenchmarkPanel.tsx";
 import { validateAndParse } from "./utils/validation.ts";
-import { optimizeSmallWorld } from "./api.ts";
+import { clampEdgeWeight } from "./utils/edgeWeight.ts";
+import { buildRandomMockResponse } from "./utils/devMockOptimization.ts";
+import { optimizeSmallWorld, runBenchmark, toApiRequest } from "./api.ts";
 import type {
   ParsedGraph,
   OptimizeSmallWorldResponse,
   ApiTarget,
+  BenchmarkResult,
 } from "./types.ts";
 import "./App.css";
 
+type Language = "ko" | "en" | "ja";
+
 export default function App() {
+  const { t, i18n } = useTranslation();
   const [verticesRaw, setVerticesRaw] = useState("1,2,3,4,5");
   const [edgesRaw, setEdgesRaw] = useState("1 2\n2 3\n3 4\n4 5\n5 1");
   const [parsedGraph, setParsedGraph] = useState<ParsedGraph | null>(null);
@@ -22,6 +30,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [apiTarget, setApiTarget] = useState<ApiTarget>("small-world");
+  const [defaultWeight, setDefaultWeight] = useState(10);
+  const [benchmarkResult, setBenchmarkResult] =
+    useState<BenchmarkResult | null>(null);
+  const [benchmarkLoading, setBenchmarkLoading] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window !== "undefined") {
       const attr = document.documentElement.getAttribute("data-theme");
@@ -39,58 +51,54 @@ export default function App() {
     setTheme((t) => (t === "light" ? "dark" : "light"));
   }, []);
 
+  const handleLanguageChange = useCallback(
+    (lng: Language) => {
+      void i18n.changeLanguage(lng);
+    },
+    [i18n]
+  );
+
   const handleDrawGraph = useCallback(() => {
-    const result = validateAndParse(verticesRaw, edgesRaw);
+    const result = validateAndParse(verticesRaw, edgesRaw, defaultWeight);
     if (!result.valid) {
-      setError(result.error);
+      setError(t(result.error.key, result.error));
       return;
     }
     setError(null);
     setParsedGraph(result.graph);
     setOptimizationResult(null);
     setHasDrawn(true);
-  }, [verticesRaw, edgesRaw]);
+  }, [verticesRaw, edgesRaw, defaultWeight, t]);
 
   const handleOptimize = useCallback(async () => {
     if (!parsedGraph) return;
-    const result = validateAndParse(verticesRaw, edgesRaw);
+    const result = validateAndParse(verticesRaw, edgesRaw, defaultWeight);
     if (!result.valid) {
-      setError(result.error);
+      setError(t(result.error.key, result.error));
       return;
     }
+    setParsedGraph(result.graph);
     setError(null);
     setLoading(true);
     try {
-      const res = await optimizeSmallWorld(
-        {
-          vertices: parsedGraph.vertices,
-          edges: parsedGraph.edges,
-        },
-        apiTarget
-      );
+      const res = await optimizeSmallWorld(result.graph, apiTarget);
       setOptimizationResult(res);
     } catch (err) {
       const msg =
-        err instanceof Error
-          ? err.message
-          : "알 수 없는 오류가 발생했습니다.";
+        err instanceof Error ? err.message : t("errors.unknown");
       if (
         msg.includes("fetch") ||
         msg.includes("Failed to fetch") ||
         msg.includes("NetworkError")
       ) {
-        setError(
-          "CORS 또는 네트워크 오류: 서버에 연결할 수 없습니다. " +
-            "브라우저 개발자 도구(F12) > Network 탭에서 요청 상태를 확인해보세요. " +
-            "서버가 CORS를 허용하는지 확인이 필요합니다."
-        );
+        setError(t("errors.cors"));
       } else {
         setError(msg);
       }
     } finally {
       setLoading(false);
     }
-  }, [parsedGraph, verticesRaw, edgesRaw, apiTarget]);
+  }, [parsedGraph, verticesRaw, edgesRaw, defaultWeight, apiTarget, t]);
 
   const handleVerticesChange = useCallback((v: string) => {
     setVerticesRaw(v);
@@ -107,9 +115,42 @@ export default function App() {
     setError(null);
   }, []);
 
+  const handleBenchmark = useCallback(async () => {
+    setBenchmarkLoading(true);
+    setBenchmarkResult(null);
+    try {
+      const result = await runBenchmark();
+      setBenchmarkResult(result);
+    } catch (err) {
+      const msg =
+        err instanceof Error ? err.message : t("errors.unknown");
+      setError(msg);
+    } finally {
+      setBenchmarkLoading(false);
+    }
+  }, [t]);
+
+  const handleDefaultWeightChange = useCallback((w: number) => {
+    setDefaultWeight(clampEdgeWeight(w));
+    setError(null);
+  }, []);
+
+  const handleDevMock = useCallback(() => {
+    const result = validateAndParse(verticesRaw, edgesRaw, defaultWeight);
+    if (!result.valid) {
+      setError(t(result.error.key, result.error));
+      return;
+    }
+    setError(null);
+    setParsedGraph(result.graph);
+    setHasDrawn(true);
+    setOptimizationResult(buildRandomMockResponse(result.graph));
+  }, [verticesRaw, edgesRaw, defaultWeight, t]);
+
   const handleReset = useCallback(() => {
     setVerticesRaw("1,2,3,4,5");
     setEdgesRaw("1 2\n2 3\n3 4\n4 5\n5 1");
+    setDefaultWeight(10);
     setParsedGraph(null);
     setOptimizationResult(null);
     setHasDrawn(false);
@@ -119,30 +160,47 @@ export default function App() {
   const canDraw = verticesRaw.trim().length > 0;
   const canOptimize = parsedGraph !== null && !loading;
 
-  const requestForDebug = parsedGraph
-    ? {
-        vertices: parsedGraph.vertices,
-        edges: parsedGraph.edges,
-      }
-    : null;
+  const requestForDebug = parsedGraph ? toApiRequest(parsedGraph) : null;
+
+  const currentLanguage = (i18n.language as Language) ?? "ko";
 
   return (
     <div className="app">
       <header>
         <div className="header-row">
           <div>
-            <h1>Metropolitan Ring Road System</h1>
-            <p>무방향 그래프를 입력하고 경로 탐색으로 최적화된 방향을 확인하세요.</p>
+            <h1>{t("header.title")}</h1>
+            <p>{t("header.subtitle")}</p>
           </div>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={toggleTheme}
-            title={theme === "light" ? "다크 모드로 전환" : "라이트 모드로 전환"}
-            aria-label={theme === "light" ? "다크 모드" : "라이트 모드"}
-          >
-            {theme === "light" ? "🌙" : "☀️"}
-          </button>
+          <div className="header-controls">
+            <select
+              className="language-select"
+              value={currentLanguage}
+              onChange={(e) => handleLanguageChange(e.target.value as Language)}
+              aria-label={t("language")}
+            >
+              <option value="ko">한국어</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+            </select>
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              title={
+                theme === "light"
+                  ? t("header.switchToDark")
+                  : t("header.switchToLight")
+              }
+              aria-label={
+                theme === "light"
+                  ? t("header.darkMode")
+                  : t("header.lightMode")
+              }
+            >
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -151,21 +209,27 @@ export default function App() {
           <GraphInput
             verticesRaw={verticesRaw}
             edgesRaw={edgesRaw}
+            defaultWeight={defaultWeight}
             onVerticesChange={handleVerticesChange}
             onEdgesChange={handleEdgesChange}
+            onDefaultWeightChange={handleDefaultWeightChange}
             onDrawGraph={handleDrawGraph}
             onOptimize={handleOptimize}
             onReset={handleReset}
+            onBenchmark={handleBenchmark}
             canDraw={canDraw}
             canOptimize={canOptimize}
+            benchmarkLoading={benchmarkLoading}
             error={error}
             apiTarget={apiTarget}
             onApiTargetChange={handleApiTargetChange}
+            onDevMock={
+              import.meta.env.DEV ? handleDevMock : undefined
+            }
           />
-          {loading && (
-            <div className="loading">최적화 중...</div>
-          )}
+          {loading && <div className="loading">{t("loading")}</div>}
           <ResultPanel result={optimizationResult} />
+          <BenchmarkPanel result={benchmarkResult} loading={benchmarkLoading} />
         </aside>
 
         <main className="main">

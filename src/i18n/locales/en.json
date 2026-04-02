@@ -1,0 +1,66 @@
+{
+  "header": {
+    "title": "Metropolitan Ring Road System",
+    "subtitle": "Enter an undirected graph and use path search to find the optimized directions.",
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "darkMode": "Dark mode",
+    "lightMode": "Light mode"
+  },
+  "graphInput": {
+    "title": "Graph Input",
+    "apiSelection": "API Selection",
+    "vertices": "Vertices (comma-separated)",
+    "verticesPlaceholder": "e.g. 1,2,3,4,5",
+    "edges": "Edges (one per line, optional weight 1–10)",
+    "edgesPlaceholder": "e.g.:\n1 2\n2 3 8\n3 4",
+    "defaultWeight": "Default weight (1–10)",
+    "drawGraph": "Draw Graph",
+    "pathSearch": "Path Search",
+    "reset": "Reset",
+    "runBenchmark": "Run Benchmark",
+    "devMock": "Dev: random paths",
+    "devMockTitle": "Randomize edge directions without the server to test visualization and animations."
+  },
+  "resultPanel": {
+    "title": "Optimization Result",
+    "optimizedScore": "Optimized Graph Score",
+    "bidirectionalScore": "Bidirectional Graph Score",
+    "scoreDiff": "Score Difference",
+    "directedEdgeCount": "Optimized Directed Edge Count",
+    "unreachableNode": "(Unreachable node exists)"
+  },
+  "graphVisualization": {
+    "placeholder": "Enter a graph and click the \"Draw Graph\" button."
+  },
+  "debugPanel": {
+    "show": "▶ Show debug (Request/Response)",
+    "hide": "▼ Hide debug"
+  },
+  "loading": "Optimizing...",
+  "validation": {
+    "verticesEmpty": "Vertices cannot be empty.",
+    "invalidVertex": "Invalid vertex value: \"{{value}}\"",
+    "duplicateVertices": "Duplicate vertices found.",
+    "invalidEdgeFormat": "Invalid edge format (line {{line}}): \"{{value}}\". Use \"u v\" or \"u v w\"; w must be an integer from 1 to 10.",
+    "weightOutOfRange": "Weight must be an integer between {{min}} and {{max}} (line {{line}}): \"{{value}}\"",
+    "invalidEdgeValue": "Invalid edge value (line {{line}}): \"{{value}}\"",
+    "selfLoop": "Self-loop not allowed (line {{line}}): \"{{u}} {{v}}\"",
+    "vertexNotFound": "Vertex {{vertex}} is not in the vertex list. (line {{line}})"
+  },
+  "errors": {
+    "unknown": "An unknown error occurred.",
+    "cors": "CORS or network error: Unable to connect to the server. Check the request status in the browser developer tools (F12) > Network tab. The server may need to allow CORS."
+  },
+  "language": "Language",
+  "benchmarkPanel": {
+    "title": "Model Performance Comparison",
+    "running": "Running benchmark... (10 runs per model)",
+    "approach": "Model",
+    "max": "Max Score",
+    "min": "Min Score",
+    "average": "Average Score",
+    "averageTime": "Average Time (ms)",
+    "failures": "Failures"
+  }
+}
